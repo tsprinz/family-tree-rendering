@@ -60,4 +60,4 @@ class Person(models.Model):
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null = True, blank = True)
 
     def __str__(self):
-        return "%s, %s, * %s" % (self.last_name.upper(), self.first_name, self.birth_date)
+        return "%s, %s, * %s" % (self.last_name.upper(), self.first_name, self.birth_date.year)
