@@ -61,3 +61,12 @@ class Person(models.Model):
 
     def __str__(self):
         return "%s, %s, * %s" % (self.last_name.upper(), self.first_name, self.birth_date.year)
+
+    def has_image(self):
+        if self.image:
+            return True
+        else:
+            return False
+    
+    has_image.boolean = True
+    has_image.short_description = 'Image uploaded'
