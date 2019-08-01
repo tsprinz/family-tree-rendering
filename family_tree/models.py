@@ -19,7 +19,26 @@ def validate_dates(date1, date2):
             },
         )
 
+class Relationship(models.Model):
+    
+    RELATIONSHIP_CHOICES = [
+        ('p', 'partnered'),
+        ('e', 'engaged'),
+        ('m', 'married'),
+        ('d', 'divorced'),
+        ('o', 'other'),
+    ]
+    relation_type = models.CharField(max_length=1, choices=RELATIONSHIP_CHOICES)
+    person_a = models.ForeignKey('Person', on_delete = models.PROTECT, related_name = 'persona', verbose_name = 'Partner')
+    person_b = models.ForeignKey('Person', on_delete = models.PROTECT, related_name = 'personb', verbose_name = 'Partner')
+
+    def __str__(self):
+        return "%s & %s, %s" % (self.person_a, self.person_b, self.get_relation_type_display())
+
 class Person(models.Model):
+    class Meta:
+        verbose_name_plural = "people"
+    
     first_name = models.CharField(max_length=20)
     middle_names = models.CharField(max_length=83, blank = True, default = '')
     last_name = models.CharField(max_length=20)
@@ -28,10 +47,9 @@ class Person(models.Model):
 
     birth_date = models.DateField()
     death_date = models.DateField(null=True, blank=True, validators=[validate_dates])
-    parent_a = models.ForeignKey('Person', on_delete = models.SET_NULL, null = True, blank = True, related_name = 'parenta', verbose_name = 'Parent')
-    parent_b = models.ForeignKey('Person', on_delete = models.SET_NULL, null = True, blank = True, related_name = 'parentb', verbose_name = 'Parent')
+    parents = models.ForeignKey('Relationship', on_delete = models.SET_NULL, null = True, blank = True, related_name = 'parents', verbose_name = 'Parent Relation')
     
-    image = models.ImageField(upload_to='photos/', blank = True, null = True, verbose_name = 'Upload photo')
+    image = models.ImageField(upload_to='photos/', blank = True, verbose_name = 'Upload photo')
 
     GENDER_CHOICES = [
         ('m', 'male'),

@@ -1,7 +1,7 @@
 from datetime import date
 from django.contrib import admin
 
-from .models import Person
+from .models import Person, Relationship
 
 class DecadeListFilter(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
@@ -33,21 +33,30 @@ class DecadeListFilter(admin.SimpleListFilter):
                 return queryset.filter(birth_date__gte=date(int(request.GET['decade']), 1, 1),
                                         birth_date__lte=date(int(request.GET['decade'])+9, 12, 31))
 
+class RelationshipInline(admin.TabularInline):
+    model = Relationship
+    extra = 1
+
+class RelationshipAdmin(admin.ModelAdmin):
+    search_fields = ['person_a', 'person_b']
+    autocomplete_fields = ['person_a', 'person_b']
 
 class PersonAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Names',               {'fields': ['first_name', 'middle_names', 'last_name', 'birth_name', 'display_name']}),
-        ('Birth & Death',   {'fields': ['birth_date', 'parent_a', 'parent_b', 'death_date']}),
+        ('Birth & Death',   {'fields': ['birth_date', 'parents', 'death_date']}),
         ('Photo', {'fields': ['image', ]}),
     ]
+    #inlines = [RelationshipInline]
     
     def gen_name(self, obj):
         return obj.last_name.upper() + ', ' + obj.first_name
     gen_name.short_description = 'Name'
 
-    list_display = ('gen_name', 'middle_names', 'birth_name', 'display_name', 'birth_date', 'death_date', 'parent_a', 'parent_b', 'gender')
+    list_display = ('gen_name', 'middle_names', 'birth_name', 'display_name', 'birth_date', 'death_date', 'parents', 'gender', 'has_image')
     list_filter = ('last_name', DecadeListFilter)
-    search_fields =  ['first_name', 'middle_names', 'last_name', 'birth_name', 'display_name', 'parent_a', 'parent_b']
-    autocomplete_fields = ['parent_a', 'parent_b']
+    search_fields =  ['first_name', 'middle_names', 'last_name', 'birth_name', 'display_name', 'parents.person_a', 'parents.person_b']
+    autocomplete_fields = ['parents']
 
 admin.site.register(Person, PersonAdmin)
+admin.site.register(Relationship, RelationshipAdmin)
